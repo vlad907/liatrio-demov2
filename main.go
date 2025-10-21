@@ -1,7 +1,9 @@
 package main
 
 import (
+    "log"
     "time"
+
     "github.com/gofiber/fiber/v2"
 )
 
@@ -15,5 +17,8 @@ func main() {
         })
     })
 
-    app.Listen(":80")
+    // Log and handle errors if the app fails to start
+    if err := app.Listen(":80"); err != nil {
+        log.Fatalf("Failed to start server: %v", err)
+    }
 }
