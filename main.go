@@ -8,6 +8,7 @@ import (
     "time"
 
     "github.com/gofiber/fiber/v2"
+	"strconv"
 )
 
 func main() {
@@ -16,13 +17,14 @@ func main() {
     })
 
     app.Get("/", func(c *fiber.Ctx) error {
-        response, _ := json.Marshal(fiber.Map{
-            "message":   "My name is John Doe",
-            "timestamp": time.Now().UnixMilli(),
-        })
-        clean := bytes.ReplaceAll(response, []byte("\n"), []byte(""))
-        return c.Type("application/json").Send(clean)
-    })
+		c.Set("Content-Type", "application/json")
+		c.Set("Cache-Control", "no-cache")
+		
+		response := `{"message":"My name is John Doe","timestamp":` + 
+			strconv.FormatInt(time.Now().UnixMilli(), 10) + `}`
+		
+		return c.SendString(response)
+	})
 
     port := os.Getenv("PORT")
     if port == "" {
