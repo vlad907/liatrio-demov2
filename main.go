@@ -1,6 +1,7 @@
 package main
 
 import (
+    "bytes"
     "encoding/json"           // <— add this
     "log"
     "os"
@@ -15,12 +16,13 @@ func main() {
     })
 
     app.Get("/", func(c *fiber.Ctx) error {
-    response, _ := json.Marshal(fiber.Map{
-        "message":   "My name is John Doe",
-        "timestamp": time.Now().UnixMilli(),
+        response, _ := json.Marshal(fiber.Map{
+            "message":   "My name is John Doe",
+            "timestamp": time.Now().UnixMilli(),
+        })
+        clean := bytes.ReplaceAll(response, []byte("\n"), []byte(""))
+        return c.Type("application/json").Send(clean)
     })
-    return c.Type("json").Send(response)
-	})
 
     port := os.Getenv("PORT")
     if port == "" {
