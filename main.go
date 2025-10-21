@@ -10,9 +10,7 @@ import (
 )
 
 func main() {
-    app := fiber.New(fiber.Config{
-        JSONEncoder: json.Marshal, // ensures minified JSON
-    })
+    app := fiber.New()
 
     app.Get("/", func(c *fiber.Ctx) error {
         c.Response().Header.SetContentType("application/json")
