@@ -15,11 +15,12 @@ func main() {
     })
 
     app.Get("/", func(c *fiber.Ctx) error {
-        return c.JSON(fiber.Map{
-            "message":   "My name is John Doe",
-            "timestamp": time.Now().UnixMilli(),
-        })
+    response, _ := json.Marshal(fiber.Map{
+        "message":   "My name is John Doe",
+        "timestamp": time.Now().UnixMilli(),
     })
+    return c.Type("json").Send(response)
+	})
 
     port := os.Getenv("PORT")
     if port == "" {
