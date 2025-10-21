@@ -23,10 +23,16 @@ jobs:
 
       - name: Start application
         env:
-          PORT: 80              # Ensure app listens on port 80 for tests
+          PORT: 80
         run: |
-          nohup ./app & disown  # Run the app in the background (detached)
-          sleep 5               # Wait a moment for server to start
-
+          nohup ./app > server.log 2>&1 &
+          echo "Waiting for app to start..."
+          for i in {1..10}; do
+            if curl -sSf http://127.0.0.1:$PORT/ >/dev/null; then
+              echo "App is running!"
+              break
+            fi
+            sleep 2
+          done
       - name: Validate application
         uses: liatrio/github-actions/apprentice-action@master
