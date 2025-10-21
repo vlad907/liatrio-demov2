@@ -4,6 +4,7 @@ import (
     "fmt"
     "log"
     "os"
+    "strings"
     "time"
 
     "github.com/gofiber/fiber/v2"
@@ -14,9 +15,9 @@ func main() {
 
     app.Get("/", func(c *fiber.Ctx) error {
         c.Response().Header.SetContentType("application/json")
-        c.Response().SetBody([]byte(fmt.Sprintf(
-            `{"message":"My name is John Doe","timestamp":%d}`, time.Now().UnixMilli(),
-        )))
+        body := fmt.Sprintf(`{"message":"My name is John Doe","timestamp":%d}`, time.Now().UnixMilli())
+        clean := strings.TrimSpace(body)
+        c.Response().SetBody([]byte(clean))
         return nil
     })
 
