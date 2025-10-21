@@ -32,7 +32,6 @@ jobs:
             fi
             sleep 2
           done
-      - name: Forward port 80 → 8080
-        run: sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
+
       - name: Validate application
         uses: liatrio/github-actions/apprentice-action@master
