@@ -22,13 +22,11 @@ jobs:
         run: go build -v -o app .   # Compile the Fiber web application
 
       - name: Start application
-        env:
-          PORT: 80
         run: |
-          nohup ./app > server.log 2>&1 &
+          sudo nohup ./app > server.log 2>&1 &
           echo "Waiting for app to start..."
           for i in {1..10}; do
-            if curl -sSf http://127.0.0.1:$PORT/ >/dev/null; then
+            if curl -sSf http://127.0.0.1:80/ >/dev/null; then
               echo "App is running!"
               break
             fi
