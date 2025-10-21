@@ -1,7 +1,7 @@
 package main
 
 import (
-    "encoding/json"           // <— add this
+    "fmt"
     "log"
     "os"
     "time"
@@ -15,12 +15,11 @@ func main() {
     })
 
     app.Get("/", func(c *fiber.Ctx) error {
-        response, _ := json.Marshal(map[string]interface{}{
-            "message":   "My name is John Doe",
-            "timestamp": time.Now().UnixMilli(),
-        })
-        c.Set("Content-Type", "application/json")
-        return c.SendString(string(response))
+        c.Response().Header.SetContentType("application/json")
+        c.Response().SetBody([]byte(fmt.Sprintf(
+            `{"message":"My name is John Doe","timestamp":%d}`, time.Now().UnixMilli(),
+        )))
+        return nil
     })
 
     port := os.Getenv("PORT")
