@@ -14,12 +14,10 @@ func main() {
     app := fiber.New()
 
     app.Get("/", func(c *fiber.Ctx) error {
-        c.Response().Header.SetContentType("application/json")
-        body := fmt.Sprintf(`{"message":"My name is John Doe","timestamp":%d}`, time.Now().UnixMilli())
-        clean := strings.TrimSpace(body)
-        c.Response().SetBody([]byte(clean))
-        return nil
-    })
+    c.Response().Header.SetContentType("application/json; charset=utf-8")
+    clean := fmt.Sprintf(`{"message":"My name is John Doe","timestamp":%d}`, time.Now().UnixMilli())
+    return c.SendString(clean)
+	})
 
     port := os.Getenv("PORT")
     if port == "" {
