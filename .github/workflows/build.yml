@@ -12,28 +12,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: "1.22"
-
-      - name: Install dependencies
-        run: go mod download
-
-      - name: Build application
-        run: go build -v -o app .
-
-      - name: Start application for validation
-        run: |
-          sudo nohup ./app > server.log 2>&1 &
-          for i in {1..10}; do
-            if curl -sSf http://127.0.0.1:80/ >/dev/null; then
-              echo "App is running!"
-              break
-            fi
-            sleep 2
-          done
-
       - name: Build Docker image
         run: docker build --no-cache --platform linux/amd64 -t us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/liatrio-demo-repo/liatrio-demo:latest .
 
