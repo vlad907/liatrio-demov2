@@ -4,7 +4,6 @@ import (
     "fmt"
     "log"
     "os"
-    "strings"
     "time"
 
     "github.com/gofiber/fiber/v2"
