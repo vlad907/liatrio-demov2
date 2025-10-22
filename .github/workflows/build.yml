@@ -25,11 +25,11 @@ jobs:
 
 
       - name: Build Docker image
-        run: docker build -t us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/liatrio-demo-repo/liatrio-demo:latest .
+        run: docker build -t us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/liatrio-demo/liatrio-demo:latest .
 
       - name: Validate Docker container
         run: |
-          docker run -d -p 8080:80 --name liatrio-demo-test us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/liatrio-demo-repo/liatrio-demo:latest
+          docker run -d -p 8080:80 --name liatrio-demo-test us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/liatrio-demo/liatrio-demo:latest
           sleep 5
           curl -f http://localhost:8080/ || (docker logs liatrio-demo-test && exit 1)
           docker stop liatrio-demo-test && docker rm liatrio-demo-test
@@ -46,12 +46,12 @@ jobs:
         run: gcloud auth configure-docker us-west1-docker.pkg.dev
 
       - name: Push Docker image
-        run: docker push us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/liatrio-demo-repo/liatrio-demo:latest
+        run: docker push us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/liatrio-demo/liatrio-demo:latest
 
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy liatrio-demo \
-            --image us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/liatrio-demo-repo/liatrio-demo:latest \
+            --image us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/liatrio-demo/liatrio-demo:latest \
             --platform managed \
             --region us-west1 \
             --allow-unauthenticated
