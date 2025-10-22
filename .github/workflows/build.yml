@@ -1,4 +1,5 @@
-name: CI Build and Validate
+name: CI Build and Deploy to Cloud Run
+
 on:
   push:
     branches: [ "main" ]
@@ -6,6 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -13,18 +15,17 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: "1.25"    # Use a stable Go version (adjust as needed)
+          go-version: "1.22"
 
       - name: Install dependencies
-        run: go mod download    # Ensure Go modules are downloaded
+        run: go mod download
 
       - name: Build application
-        run: go build -v -o app .   # Compile the Fiber web application
+        run: go build -v -o app .
 
-      - name: Start application
+      - name: Start application for validation
         run: |
           sudo nohup ./app > server.log 2>&1 &
-          echo "Waiting for app to start..."
           for i in {1..10}; do
             if curl -sSf http://127.0.0.1:80/ >/dev/null; then
               echo "App is running!"
@@ -35,3 +36,25 @@ jobs:
 
       - name: Validate application
         uses: liatrio/github-actions/apprentice-action@0b41561cca6822cc8d880fe0e49e7807a41fdf91
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-west1-docker.pkg.dev
+
+      - name: Build Docker image
+        run: docker build -t us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/liatrio-demo-repo/liatrio-demo:latest .
+
+      - name: Push Docker image
+        run: docker push us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/liatrio-demo-repo/liatrio-demo:latest
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy liatrio-demo \
+            --image us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/liatrio-demo-repo/liatrio-demo:latest \
+            --platform managed \
+            --region us-west1 \
+            --allow-unauthenticated
