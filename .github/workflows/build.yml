@@ -34,4 +34,4 @@ jobs:
           done
 
       - name: Validate application
-        uses: liatrio/github-actions/apprentice-action@master@c99fc1082658af19011b896300f1bfcd29e09516
+        uses: liatrio/github-actions/apprentice-action@c99fc1082658af19011b896300f1bfcd29e09516
