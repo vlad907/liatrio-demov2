@@ -6,6 +6,7 @@
 - Introduction
 - Go over main.go go.mod and go.sum
 - Local testing verify it works locally by making curl requests on localhost
+- Go over complications of testing and commit versions are important
 - Secrets for github actions, and why it is important?
 - Explain what the Dockerfile is doing
 - Explain build.yml
