@@ -14,9 +14,14 @@ jobs:
 
       - name: Build Docker image
         run: docker build --no-cache --platform linux/amd64 -t us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/liatrio-demo-repo/liatrio-demo:latest .
+      # - "no-cache" forces Docker to build a completely fresh image
+      # - "platform" says which architecture we want to target (linux/amd64 for Cloud Run)
+      # - "us-west1-docker..." is the Artifact Registry host in that region, with the project id dropped in from secrets
 
       - name: Start Docker container
-        run: docker run -d -p 80:80 --rm --name liatrio-demo-test us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/liatrio-demo-repo/liatrio-demo:latest
+        run: docker run -d -p 80:80 --name liatrio-demo-test us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/liatrio-demo-repo/liatrio-demo:latest
+      # - run the new container on the runner in the background and publish port 80 to the host
+      # - use the same repo/image tag we just built so we stay aligned with what we’ll deploy
 
       - name: Validate Docker container
         run: |
@@ -30,24 +35,34 @@ jobs:
           docker logs liatrio-demo-test
           exit 1
 
+      # - quick check that the docker container is healthy before we run the action tests
+      # - send up to 10 curl requests to port 80 until the app replies
+      # - print the logs either way; exit clean if ready, otherwise bail with failure
+
       - name: Validate application
         uses: liatrio/github-actions/apprentice-action@0b41561cca6822cc8d880fe0e49e7807a41fdf91
+      # - Liatrio action that exercises the running container to confirm the endpoint works
+      # - pinned to a specific commit because the latest revision has a failing test right now
 
       - name: Stop Docker container
         if: always()
         run: docker stop liatrio-demo-test
+      # - stop the helper container even if earlier steps fail so the runner stays clean
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
+      # - use Google’s action with our service account key from secrets to grab access tokens
 
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker us-west1-docker.pkg.dev
+      # - wire Docker to use those Google creds when talking to the us-west1 registry
 
       - name: Push Docker image
         run: docker push us-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/liatrio-demo-repo/liatrio-demo:latest
 
+      # - push the built docker image up to Artifact Registry
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy liatrio-demo \
@@ -55,3 +70,7 @@ jobs:
             --platform managed \
             --region us-west1 \
             --allow-unauthenticated
+      # - deploy that image to Cloud Run
+      # - platform managed = serverless runtime (billed per request instead of full-time infra)
+      # - region says which Cloud Run region we target
+      # - allow-unauthenticated makes the service publicly reachable
