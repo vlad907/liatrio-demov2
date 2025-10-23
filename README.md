@@ -25,6 +25,15 @@ docker run --rm -d -p 80:80 --name liatrio-demo-test liatrio-demo
 curl http://127.0.0.1:80/
 docker logs liatrio-demo-test
 
+#4. show what is running on gcloud
+gcloud run services list --region us-west1
+
+# 5. remove demo
+gcloud run services delete liatrio-demo \
+  --region us-west1 \
+  --platform managed
+
+
 ```
 
 ---
