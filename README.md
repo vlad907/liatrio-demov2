@@ -30,7 +30,7 @@ curl http://127.0.0.1:80/
 docker logs liatrio-demo-test
 ```
 
-#4. show what is running on gcloud
+# 5. show what is running on gcloud
 ```bash
 gcloud run services list --region us-west1
 ```
